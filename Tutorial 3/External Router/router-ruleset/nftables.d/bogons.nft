@@ -1,0 +1,15 @@
+chain bogons {
+    # Bogon filtering for the DMZ (internal network)
+    iif != $internal_interface ip saddr $internal_subnet counter log prefix "[nftables] Bogon DMZ: " drop
+    iif $internal_interface ip saddr != $internal_subnet counter log prefix "[nftables] Bogon DMZ: " drop
+
+    # Bogon filtering for the trunk (other local subnets)
+    #iif != $trunk_interface ip saddr 172.1.0.0/16 counter log prefix "[nftables] Bogon Trunk: " drop
+    #iif $trunk_interface ip saddr 172.1.0.0/24 counter log prefix "[nftables] Bogon Trunk: " drop
+
+    # Bogon filtering for the external network (WAN)
+    #iif != $wan_facing_interface ip saddr $local_subnet counter log prefix "[nftables] Bogon WAN: " drop
+    #iif $wan_facing_interface ip saddr 0.0.0.0/8 counter log prefix "[nftables] Bogon WAN: " drop
+    #iif $wan_facing_interface ip saddr 224.0.0.0/4 counter log prefix "[nftables] Bogon WAN: " drop
+    #iif $wan_facing_interface ip saddr 240.0.0.0/4 counter log prefix "[nftables] Bogon WAN: " drop
+}
