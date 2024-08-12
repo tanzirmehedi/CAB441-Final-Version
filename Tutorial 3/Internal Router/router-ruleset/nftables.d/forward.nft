@@ -13,6 +13,7 @@ chain ssh_connections {
 # Rules for anything other than DNS, apt and ssh
 chain general_connections {
     # Add a rule for www -> db port 3306 (mysql) here
+     ip saddr 172.1.0.10 ip daddr 172.1.1.11 tcp dport 3306 counter accept                 # Allow www to access db on MySQL port
 
 }
 
