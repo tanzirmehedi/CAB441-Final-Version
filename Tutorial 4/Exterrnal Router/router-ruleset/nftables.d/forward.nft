@@ -1,0 +1,31 @@
+# rules to accept traffic being forwarded
+
+# Rules for ssh connections to/from the internal network
+# tcp dport ssh already applied before this chain is called
+chain ssh_connections {
+
+    #        Client                Server                 
+    # ----------------------------------------------
+    ip saddr 172.0.0.1    ip daddr 172.1.1.11           counter goto ssh_policy   # Example showing 172.0.0.1 access to db
+
+    # Tutotial 4 New Lines
+    ip saddr 172.0.0.1    ip daddr 172.1.0.14           counter goto ssh_policy   # allow ssh from hostVM to bastion
+    ip saddr 172.1.0.14   ip daddr $local_subnet        counter goto ssh_policy   # allow ssh from bastion to internal
+    
+}
+
+# Rules for anything other than DNS, apt and ssh
+chain general_connections {
+    # Allow all traffic between the local network and external network, excluding 172.0.99.0/24
+    ip saddr != 172.0.99.0/24 ip daddr $local_subnet oif $wan_facing_interface counter accept
+    ip saddr $local_subnet ip daddr != 172.0.99.0/24 oif $wan_facing_interface counter accept
+    
+    # Additional rules can be added here as needed
+}
+
+chain forwarded_connections {
+    ip daddr $dns_servers udp dport domain counter accept                                # DNS server for everyone
+    ip daddr $apt_servers tcp dport $apt_ports ip saddr $apt_clients counter accept      # apt repositories for allowed clients
+    tcp dport ssh jump ssh_connections                                                   # Note: filter on ssh port before jumping
+    jump general_connections
+}
