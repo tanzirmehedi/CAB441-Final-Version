@@ -12,11 +12,10 @@ chain ssh_connections {
 
 # Rules for anything other than DNS, apt and ssh
 chain general_connections {
-    # Allow all traffic between the local network and external network, excluding 172.0.99.0/24
-    ip saddr != 172.0.99.0/24 ip daddr $local_subnet oif $wan_facing_interface counter accept
-    ip saddr $local_subnet ip daddr != 172.0.99.0/24 oif $wan_facing_interface counter accept
-    
-    # Additional rules can be added here as needed
+     # Add a rule for www -> db port 3306 (mysql) here
+     ip saddr 172.1.0.10 ip daddr 172.1.1.11 tcp dport mysql counter accept
+     ip saddr 172.1.0.7 udp dport 53 counter accept
+
 }
 
 chain forwarded_connections {
